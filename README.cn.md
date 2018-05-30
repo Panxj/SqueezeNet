@@ -26,7 +26,7 @@ Architecture
 SqueezeNet以卷积层（conv1）开始，接着使用8个Fire modules (fire2-9)，最后以卷积层（conv10）结束。每个fire module中的filter数量逐渐增加，并且在conv1, fire4, fire8, 和 conv10这几层之后使用步长为2的max-pooling，即将池化层放在相对靠后的位置，如下图左侧子图，中间与右侧子图分别在初始结构上添加
 simple bypass 与 complex bypass.
 
-<!--![](https://github.com/Panxj/SqueezeNet/raw/master/images/architecture.jpg)-->
+![](https://github.com/Panxj/SqueezeNet/raw/master/images/architecture.jpg)
 
 Overview
 -----------
@@ -46,7 +46,9 @@ Data Preparation
 * 训练集: 1,281,167张图片 + 标签
 * 验证集: 50,000张图片 + 标签
 * 测试集: 100,000张图片
-训练中数据减去均值，均值采用`[104,117,123]` 与官网提供的均值文件稍有不同。
+
+训练时， 所有图片按照短边resize到256，之后随机从左上，右上，中间，左下，右下crop出227 * 227 大小图像输入网络。验证与测试时，同样按短边resize到256，之后从中间crop 227 * 227 图像输入网络。所有图像均减去均值`[104,117,123]`，与imagenet 官网提供的均值文件稍有不同。
+相关函数如下，
 
 Training
 -----------
