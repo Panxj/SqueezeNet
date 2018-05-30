@@ -131,7 +131,8 @@ Tabel 2. changes in SqueezeNet_v1.1
  |ImageNet accuracy| >=80.3% top-5| >=80.3% top-5|
  
 此项目中，采用SqueezeNet_v1.1 结构。<br>
-#### caffe2paddle 参数转化。
+
+#### caffe2paddle 参数转化
 caffemodel中参数按照[PaddlePaddle](https://github.com/PaddlePaddle/models/tree/develop/image_classification/caffe2paddle)介绍的方法进行转化，并在训练开始前进行赋值，如下：
 ```python
 #Load pre-trained params
@@ -142,9 +143,11 @@ if args.model is not None:
             h,w = parameters.get_shape(layer_name)
             parameters.set(layer_name,load_parameter(layer_param_path,h,w))
 ```
+
 #### train
- `python train.py --model your/path/to/parametersFromCaffe --trainer num`
---model: 从caffemodel中提取的参数
+`python train.py --model your/path/to/parametersFromCaffe --trainer num` <br>
+--model: 从caffemodel中提取的参数.<br>
+
 Infer
 -----------
 Reference
