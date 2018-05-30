@@ -11,15 +11,31 @@ Introduction
 
 Architecture
 -----------
-  ### Architecture Design Strategies
+### Architecture Design Strategies
   * 使用1∗1卷积代替3∗3 卷积：参数减少为原来的1/9 
   * 减少输入通道数量：这一部分使用squeeze layers来实现 
   * 将欠采样操作延后，可以给卷积层提供更大的激活图：更大的激活图保留了更多的信息，可以提供更高的分类准确率
-  ### The Fire Module
-  ### The SqueezeNet Architecture
-  
+### The Fire Module
+<!--![](https://github.com/Panxj/SqueezeNet/raw/master/images/fire_module.jpg)-->
+  * squeeze layer: 使用`1∗1`卷积核压缩通道数
+  * expand layer: 分别使用 `1∗1` 与 `3∗3` 卷积核对扩展通道数
+  * Fire module中使用3个可调的超参数：`s1x1`（squeeze convolution layer中1∗1 filter的个数）、`e1x1`（expand layer中1∗1 filter的个数）、`e3x3`（expand layer中3∗3 filter的个数）
+  * 使用Fire module的过程中，令`s1x1 < e1x1 + e3x3`，这样squeeze layer可以限制输入通道数量
+
+### The SqueezeNet Architecture
+SqueezeNet以卷积层（conv1）开始，接着使用8个Fire modules (fire2-9)，最后以卷积层（conv10）结束。每个fire module中的filter数量逐渐增加，并且在conv1, fire4, fire8, 和 conv10这几层之后使用步长为2的max-pooling，即将池化层放在相对靠后的位置，如下图左侧子图，中间与右侧子图分别在初始结构上添加
+simple bypass 与 complex bypass.
+
+<!--![](https://github.com/Panxj/SqueezeNet/raw/master/images/architecture.jpg)-->
+
 Overview
 -----------
+    Tabel 1. Directory structure
+|file | description|
+|:--- |:---|
+train.py | Train script
+infer.py | Infer script
+
 Data Preparation
 -----------
 Training
