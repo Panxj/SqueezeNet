@@ -34,10 +34,20 @@ Overview
 |file | description|
 |:--- |:---|
 train.py | Train script
-infer.py | Infer script
+infer.py | Prediction using the trained model
+reader.py| Data reader
+squeezenet.py| Model definition
+data/val.txt|Validation data list
+data/train.txt| Train data list
 
 Data Preparation
 -----------
+首先从官网下载imagenet数据集，使用ILSVRC 2012(ImageNet Large Scale Visual Recognition Challenge)比赛用的子数据集，其中<br>
+* 训练集: 1,281,167张图片 + 标签
+* 验证集: 50,000张图片 + 标签
+* 测试集: 100,000张图片
+训练中数据减去均值，均值采用`[104,117,123]` 与官网提供的均值文件稍有不同。
+
 Training
 -----------
 Infer
