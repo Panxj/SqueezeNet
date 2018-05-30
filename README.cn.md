@@ -16,7 +16,7 @@ Architecture
   * 减少输入通道数量：这一部分使用squeeze layers来实现 
   * 将欠采样操作延后，可以给卷积层提供更大的激活图：更大的激活图保留了更多的信息，可以提供更高的分类准确率
 ### The Fire Module
-<!--![](https://github.com/Panxj/SqueezeNet/raw/master/images/fire_module.jpg)-->
+![](https://github.com/Panxj/SqueezeNet/raw/master/images/fire_module.jpg)
   * squeeze layer: 使用`1∗1`卷积核压缩通道数
   * expand layer: 分别使用 `1∗1` 与 `3∗3` 卷积核对扩展通道数
   * Fire module中使用3个可调的超参数：`s1x1`（squeeze convolution layer中1∗1 filter的个数）、`e1x1`（expand layer中1∗1 filter的个数）、`e3x3`（expand layer中3∗3 filter的个数）
