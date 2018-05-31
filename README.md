@@ -137,7 +137,7 @@ Tabel 2. changes in SqueezeNet_v1.1
 Here, we implement the latter one, SqueezeNet_v1.1.
 #### 2. caffe2paddle
 To train simply and quickly, we first transfor the [caffe](http://caffe.berkeleyvision.org/)-style parameters into ones can be used in [PaddlePaddle](http://www.paddlepaddle.org/) as the pretrained model and then we literaly `finetune` the model. 
-We perfome the parameter conversion according to the method described [here](https://github.com/PaddlePaddle/models/tree/develop/image_classification/caffe2paddle).
+We perfome the parameter conversion according to the method described [here](https://github.com/PaddlePaddle/models/tree/develop/image_classification/caffe2paddle). Our converted parameters are placed under directory `models/SqueezeNet_v1.1`. 
 In `train.py`, we set the parameters converted from caffe into the paddle model as the initial value as followed:
 ```python
 #Load pre-trained params
@@ -150,13 +150,47 @@ if args.model is not None:
 ```
 
 #### 3. train
-`python train.py --model your/path/to/parametersFromCaffe --trainer num` <br>
---model: path/to/parameters converted from caffe.<br>
+`python train.py --model models/SqueezeNet_v1.1 --trainer 2` <br>
+--model: path/to/parameters converted from caffe. <br>
+--trainer: trainer count used in Paddle. <br>
+Below is a description about this script:
+1. Call paddle.init with 2 GPUs.
+2. `reader()`
+3. During the training process, it will print some log information.
 
-Infer
+Testing
 -----------
+Run `python test.py` to preform model evaluation process using the trained model.
+```python
+# test code
+test(
+    val_file_list='./data/val.txt',
+    model_path='./output/checkpoints/squeezenet_final.tar.gz',
+    GPU=True,
+    trainer=2)
+```
+Here `infer_file_list` specifies image path list to be inferred, `model_path` specifies directory to the trained parameters.
+```
+evaluation result.
+```
 
-Reference
+Infering
+-----------
+Run `python infer.py` to perform the image classification using the trained model.
+```python
+# infer code
+infer(
+    infer_file_list='./data/infer.txt',
+    model_path='./output/checkpoints/squeezenet.tar.gz',
+    GPU=True,
+    trainer=2)
+```
+Here `infer_file_list` specifies image path list to be inferred, `model_path` specifies directory to the trained parameters.
+```
+infer example result.
+```
+
+References
 -----------
 [SqueezeNet: AlexNet-level accuracy with 50x fewer parameters and <0.5MB model size](https://arxiv.org/abs/1602.07360)
 
