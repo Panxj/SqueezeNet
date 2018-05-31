@@ -119,7 +119,7 @@ ILSVRC2012_val_00000006.JPEG 57
 ```
 Training
 -----------
-#### Determine the architecture
+#### 1. Determine the architecture
 The author [github](https://github.com/DeepScale/SqueezeNet) provide two versions of SqueezeNet model。 SqueezeNet_v1.0 is the implement one of architecture described in paper while SqueezeNet_v1.1 changes somewhere to reduce the computation by 2.4x with the accuracy preserved. Changes in SqueezeNet_v1.1 is shown as follwed：
 
 Tabel 2. changes in SqueezeNet_v1.1
@@ -132,7 +132,7 @@ Tabel 2. changes in SqueezeNet_v1.1
  |ImageNet accuracy| >=80.3% top-5| >=80.3% top-5|
  
 Here, we implement the latter one, SqueezeNet_v1.1.
-#### caffe2paddle
+#### 2. caffe2paddle
 To train simply and quickly, we first transfor the [caffe](http://caffe.berkeleyvision.org/)-style parameters into ones can be used in [PaddlePaddle](http://www.paddlepaddle.org/) as the pretrained model and then we literaly `finetune` the model. 
 We perfome the parameter conversion according to the method described [here](https://github.com/PaddlePaddle/models/tree/develop/image_classification/caffe2paddle).
 In `train.py`, we set the parameters converted from caffe into the paddle model as the initial value as followed:
@@ -146,7 +146,7 @@ if args.model is not None:
             parameters.set(layer_name,load_parameter(layer_param_path,h,w))
 ```
 
-#### train
+#### 3. train
 `python train.py --model your/path/to/parametersFromCaffe --trainer num` <br>
 --model: path/to/parameters converted from caffe.<br>
 
