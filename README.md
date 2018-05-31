@@ -7,14 +7,14 @@ Much of the recent research on deep convolutional neural networks (CNNs) has foc
 * Less overhead when exporting new models to clients. 
 * Feasible FPGA and embedded deployment.
 
-With this in mind, this paper discovers such an architecture, called SqueezeNet, which reaches equivalent accuracy compared to AlexNet with 1/50 parameters.  
+With this in mind, this paper discovers such an architecture, called SqueezeNet, which reaches equivalent accuracy compared to AlexNet with 1/50 fewer parameters.  
 
 Architecture
 -----------
 ### Architecture Design Strategies
-  * 使用1∗1卷积代替3∗3 卷积：参数减少为原来的1/9 
-  * 减少输入通道数量：这一部分使用squeeze layers来实现 
-  * 将欠采样操作延后，可以给卷积层提供更大的激活图：更大的激活图保留了更多的信息，可以提供更高的分类准确率
+  * Replace 3x3 filters with 1x1 filter：1/9 fewer parameters than before 
+  * Decrease the number of input channels to 3x3 filters：using squeeze layers 
+  * Downsample late in the network so that convolution layers have large activation maps: large activation maps (due to delayed downsampling) can lead to higher classification accuracy
 ### The Fire Module
 ![](https://github.com/Panxj/SqueezeNet/raw/master/images/fire_module.jpg)
   * squeeze layer: 使用`1∗1`卷积核压缩通道数
