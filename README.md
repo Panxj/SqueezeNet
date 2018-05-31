@@ -20,8 +20,8 @@ Strategies 1 and 2 are about judiciously decreasing the quantity of parameters i
 ### The Fire Module
 ![](https://github.com/Panxj/SqueezeNet/raw/master/images/fire_module.jpg)
   * squeeze layer: decrease `3x3` filters and channels
-  * expand layer: expand channels through a mix of `1x1` and `3x3` filters with three hyperparameters: `s1x1`（number of filters in the squeeze layer）、`e1x1`（number of  `1x1` filters in the expand layer）、`e3x3`（number of `3x3` filters in the expand layer）
-  * when using Fire modules, set `s1x1 < e1x1 + e3x3` to limit the number of input channels to the `3x3` filters.
+  * expand layer: expand channels through a mix of `1x1` and `3x3` filters with three hyperparameters: <a href="https://www.codecogs.com/eqnedit.php?latex=s_{1X1}" target="_blank"><img src="https://latex.codecogs.com/gif.latex?s_{1X1}" title="s_{1X1}" /></a>(number of filters in the squeeze layer), <a href="https://www.codecogs.com/eqnedit.php?latex=e_{1X1}" target="_blank"><img src="https://latex.codecogs.com/gif.latex?e_{1X1}" title="e_{1X1}" /></a>(number of  `1x1` filters in the expand layer), <a href="https://www.codecogs.com/eqnedit.php?latex=e_{3X3}" target="_blank"><img src="https://latex.codecogs.com/gif.latex?e_{3X3}" title="e_{3X3}" /></a>(number of `3x3` filters in the expand layer)
+  * when using Fire modules, set <a href="https://www.codecogs.com/eqnedit.php?latex=s_{1X1}&space;<&space;e_{1X1}&space;&plus;&space;e_{3X3}" target="_blank"><img src="https://latex.codecogs.com/gif.latex?s_{1X1}&space;<&space;e_{1X1}&space;&plus;&space;e_{3X3}" title="s_{1X1} < e_{1X1} + e_{3X3}" /></a> to limit the number of input channels to the `3x3` filters.
 
 ### The SqueezeNet Architecture
 SqueezeNet begins with a standalone convolution layer (conv1), followed by 8 Fire modules (fire2-9), ending with a final conv layer (conv10). Gradually increase the number of filters per fire module from the beginning to the end of the network. SqueezeNet performs max-pooling with a stride of 2 after layers conv1, fire4, fire8, and conv10; these relatively late placements of pooling are per Strategy3. As shown followed, the left one is the Macroarchitectural view of SqueezeNet architecture. The middle and right are SqueezeNet with simple bypass and complex bypass correspondingly.
@@ -40,6 +40,9 @@ reader.py| Data reader
 squeezenet.py| Model definition
 data/val.txt|Validation data list
 data/train.txt| Train data list
+models/SqueezeNet_v1.1| Parameters converted from caffe model
+images/\* | Images used in description and some results
+output/\* | Parameters saved in training process
 
 Data Preparation
 -----------
