@@ -24,8 +24,7 @@ Strategies 1 and 2 are about judiciously decreasing the quantity of parameters i
   * when using Fire modules, set `s1x1 < e1x1 + e3x3` to limit the number of input channels to the `3x3` filters.
 
 ### The SqueezeNet Architecture
-SqueezeNet begins with a standalone convolution layer (conv1), followed by 8 Fire modules (fire2-9), ending with a final conv layer (conv10). Gradually increase the number of filters per fire module from the beginning to the end of the network. SqueezeNet performs max-pooling with a stride of 2 after layers conv1, fire4, fire8, and conv10; these relatively late placements of pooling are per
-simple bypass 与 complex bypass.
+SqueezeNet begins with a standalone convolution layer (conv1), followed by 8 Fire modules (fire2-9), ending with a final conv layer (conv10). Gradually increase the number of filters per fire module from the beginning to the end of the network. SqueezeNet performs max-pooling with a stride of 2 after layers conv1, fire4, fire8, and conv10; these relatively late placements of pooling are per Strategy3. As shown followed, the left one is the Macroarchitectural view of SqueezeNet architecture. The middle and right are SqueezeNet with simple bypass and complex bypass correspondingly.
 
 ![](https://github.com/Panxj/SqueezeNet/raw/master/images/architecture.jpg)
 
@@ -44,13 +43,13 @@ data/train.txt| Train data list
 
 Data Preparation
 -----------
-首先从官网下载imagenet数据集，使用ILSVRC 2012(ImageNet Large Scale Visual Recognition Challenge)比赛用的子数据集，其中<br>
-* 训练集: 1,281,167张图片 + 标签
-* 验证集: 50,000张图片 + 标签
-* 测试集: 100,000张图片
+First, download the ImageNet dataset. We using ILSVRC 2012(ImageNet Large Scale Visual Recognition Challenge) dataset in which,
 
-训练时， 所有图片按照短边resize到256，之后随机从左上，右上，中间，左下，右下 crop 出 `227 * 227` 大小图像输入网络。验证与测试时，同样按短边resize到 256，之后从中间 crop `227 * 227` 图像输入网络。所有图像均减去均值`[104,117,123]`，与imagenet 官网提供的均值文件稍有不同。
-`reader.py`中相关函数如下，
+* trainning set: 1,281,167 imags + labels
+* validation set: 50,000 images + labels
+* test set: 100,000 images
+
+When trainning, all images are resized to `256` according to the short side and then croped out ones, size of `227 x 227`,  from upper left, upper right, center, lower left, lower right randomly. When testing, press the short edge again to `256`, then crop out `227x227` images from center. Finally, subtracting the mean value, here we use  `[104,117,123]` , which is slightly different from the official offer. The relevant function in `reader.py` is as following:
 ```python
 def random_crop(orig_im,new_shape):
         id = random.randint(0,5)
