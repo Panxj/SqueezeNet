@@ -12,18 +12,19 @@ With this in mind, this paper discovers such an architecture, called SqueezeNet,
 Architecture
 -----------
 ### Architecture Design Strategies
-  * Replace 3x3 filters with 1x1 filter：1/9 fewer parameters than before 
-  * Decrease the number of input channels to 3x3 filters：using squeeze layers 
-  * Downsample late in the network so that convolution layers have large activation maps: large activation maps (due to delayed downsampling) can lead to higher classification accuracy
+1. Replace `3x3` filters with `1x1` filter：1/9 fewer parameters than before 
+2. Decrease the number of input channels to `3x3` filters：using squeeze layers 
+3. Downsample late in the network so that convolution layers have large activation maps: large activation maps (due to delayed downsampling) can lead to higher classification accuracy
+  
+Strategies 1 and 2 are about judiciously decreasing the quantity of parameters in a CNN while attempting to preserve accuracy. Strategy 3 is about maximizing accuracy on a limited budget of parameters.
 ### The Fire Module
 ![](https://github.com/Panxj/SqueezeNet/raw/master/images/fire_module.jpg)
-  * squeeze layer: 使用`1∗1`卷积核压缩通道数
-  * expand layer: 分别使用 `1∗1` 与 `3∗3` 卷积核对扩展通道数
-  * Fire module中使用3个可调的超参数：`s1x1`（squeeze convolution layer中1∗1 filter的个数）、`e1x1`（expand layer中1∗1 filter的个数）、`e3x3`（expand layer中3∗3 filter的个数）
-  * 使用Fire module的过程中，令`s1x1 < e1x1 + e3x3`，这样squeeze layer可以限制输入通道数量
+  * squeeze layer: decrease `3x3` filters and channels
+  * expand layer: expand channels through a mix of `1x1` and `3x3` filters with three hyperparameters: `s1x1`（number of filters in the squeeze layer）、`e1x1`（number of  `1x1` filters in the expand layer）、`e3x3`（number of `3x3` filters in the expand layer）
+  * when using Fire modules, set `s1x1 < e1x1 + e3x3` to limit the number of input channels to the `3x3` filters.
 
 ### The SqueezeNet Architecture
-SqueezeNet以卷积层（conv1）开始，接着使用8个Fire modules (fire2-9)，最后以卷积层（conv10）结束。每个fire module中的filter数量逐渐增加，并且在conv1, fire4, fire8, 和 conv10这几层之后使用步长为2的max-pooling，即将池化层放在相对靠后的位置，如下图左侧子图，中间与右侧子图分别在初始结构上添加
+SqueezeNet begins with a standalone convolution layer (conv1), followed by 8 Fire modules (fire2-9), ending with a final conv layer (conv10). Gradually increase the number of filters per fire module from the beginning to the end of the network. SqueezeNet performs max-pooling with a stride of 2 after layers conv1, fire4, fire8, and conv10; these relatively late placements of pooling are per
 simple bypass 与 complex bypass.
 
 ![](https://github.com/Panxj/SqueezeNet/raw/master/images/architecture.jpg)
