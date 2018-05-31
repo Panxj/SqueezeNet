@@ -99,7 +99,7 @@ def load_img(img_path, resize = 256, crop=227, flip=False):
     return im
 ```
 
-train.txt 中数据如下：
+data in train.txt is as followed：
 ```
 n01440764/n01440764_10026.JPEG 0
 n01440764/n01440764_10027.JPEG 0
@@ -108,7 +108,7 @@ n01440764/n01440764_10040.JPEG 0
 n01440764/n01440764_10042.JPEG 0
 n01440764/n01440764_10043.JPEG 0
 ```
-val.txt 中数据如下：
+data in val.txt is as followed：
 ```
 ILSVRC2012_val_00000001.JPEG 65
 ILSVRC2012_val_00000002.JPEG 970
@@ -119,7 +119,8 @@ ILSVRC2012_val_00000006.JPEG 57
 ```
 Training
 -----------
-为加快模型的训练，首先提取[caffe](http://caffe.berkeleyvision.org/)下的SqueezeNet模型参数，之后赋值到[PaddlePaddle](http://www.paddlepaddle.org/)模型中作为预训练参数，之后`finetune`. 论文作者[github](https://github.com/DeepScale/SqueezeNet)开源了两个版本的SqueezeNet 模型。 其中 SqueezeNet_v1.0 与论文中结构相同，SqueezeNet_v1.1 对原有结构进行了些许改动，使得在保证accuracy 不下降的情况下，计算量降低了 2.4x 倍。 SqueezeNet_v1.1 相比于论文中结构改动如下：
+#### Determine the architecture
+The author [github](https://github.com/DeepScale/SqueezeNet) provide two versions of SqueezeNet model。 SqueezeNet_v1.0 is the implement one of architecture described in paper while SqueezeNet_v1.1 changes somewhere to reduce the computation by 2.4x with the accuracy preserved. Changes in SqueezeNet_v1.1 is shown as follwed：
 
 Tabel 2. changes in SqueezeNet_v1.1
  
@@ -130,10 +131,11 @@ Tabel 2. changes in SqueezeNet_v1.1
  |computation| 1.72GFLOPS/image| 0.72 GFOLPS/image:2.4x less computation|
  |ImageNet accuracy| >=80.3% top-5| >=80.3% top-5|
  
-此项目中，采用SqueezeNet_v1.1 结构。<br>
+Here, we implement the latter one, SqueezeNet_v1.1.
+#### caffe2paddle
+To train simply and quickly, we first transfor the [caffe](http://caffe.berkeleyvision.org/)-style parameters into ones can be used in [PaddlePaddle](http://www.paddlepaddle.org/) as the pretrained model and then we literaly `finetune` the model. 
+We perfome the parameter conversion according to the method described [here](https://github.com/PaddlePaddle/models/tree/develop/image_classification/caffe2paddle).
 
-#### caffe2paddle 参数转化
-caffemodel中参数按照[PaddlePaddle](https://github.com/PaddlePaddle/models/tree/develop/image_classification/caffe2paddle)介绍的方法进行转化，并在训练开始前进行赋值，如下：
 ```python
 #Load pre-trained params
 if args.model is not None:
