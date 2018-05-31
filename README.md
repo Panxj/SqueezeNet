@@ -51,6 +51,21 @@ First, download the ImageNet dataset. We using ILSVRC 2012(ImageNet Large Scale 
 * trainning set: 1,281,167 imags + labels
 * validation set: 50,000 images + labels
 * test set: 100,000 images
+```
+cd data/
+mkdir -p ILSVRC2012/
+cd ILSVRC2012/
+# get training set
+wget http://www.image-net.org/challenges/LSVRC/2012/nnoupb/ILSVRC2012_img_train.tar
+# get validation set
+wget http://www.image-net.org/challenges/LSVRC/2012/nnoupb/ILSVRC2012_img_val.tar
+# prepare directory
+tar xf ILSVRC2012_img_train.tar
+tar xf ILSVRC2012_img_val.tar
+
+# unzip all classes data using unzip.sh
+sh unzip.sh
+```
 
 When trainning, all images are resized to `256` according to the short side and then croped out ones, size of `227 x 227`,  from upper left, upper right, center, lower left, lower right randomly. When testing, press the short edge again to `256`, then crop out `227x227` images from center. Finally, subtracting the mean value, here we use  `[104,117,123]` , which is slightly different from the official offer. The relevant function in `reader.py` is as following:
 ```python
@@ -102,7 +117,9 @@ def load_img(img_path, resize = 256, crop=227, flip=False):
     return im
 ```
 
-data in train.txt is as followed：
+Then, download training and validation label files from [ImageNet2012 url](https://pan.baidu.com/s/1Y6BCo0nmxsm_FsEqmx2hKQ)(password:```wx99```). Untar it into workspace `ILSVRC2012/`. The files included,
+
+**train_list.txt**: training list of imagenet 2012 classification task, with each line seperated by SPACE.
 ```
 n01440764/n01440764_10026.JPEG 0
 n01440764/n01440764_10027.JPEG 0
@@ -111,7 +128,7 @@ n01440764/n01440764_10040.JPEG 0
 n01440764/n01440764_10042.JPEG 0
 n01440764/n01440764_10043.JPEG 0
 ```
-data in val.txt is as followed：
+**val_list.txt**: validation list of imagenet 2012 classification task, with each line seperated by SPACE.
 ```
 ILSVRC2012_val_00000001.JPEG 65
 ILSVRC2012_val_00000002.JPEG 970
@@ -119,7 +136,10 @@ ILSVRC2012_val_00000003.JPEG 230
 ILSVRC2012_val_00000004.JPEG 809
 ILSVRC2012_val_00000005.JPEG 516
 ILSVRC2012_val_00000006.JPEG 57
+...
 ```
+**synset_words.txt**: the semantic label of each class.
+
 Training
 -----------
 #### 1. Determine the architecture
