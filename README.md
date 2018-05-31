@@ -127,6 +127,7 @@ n01440764/n01440764_10029.JPEG 0
 n01440764/n01440764_10040.JPEG 0
 n01440764/n01440764_10042.JPEG 0
 n01440764/n01440764_10043.JPEG 0
+...
 ```
 **val_list.txt**: validation list of imagenet 2012 classification task, with each line seperated by SPACE.
 ```
