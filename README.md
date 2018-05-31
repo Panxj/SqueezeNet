@@ -135,7 +135,7 @@ Here, we implement the latter one, SqueezeNet_v1.1.
 #### caffe2paddle
 To train simply and quickly, we first transfor the [caffe](http://caffe.berkeleyvision.org/)-style parameters into ones can be used in [PaddlePaddle](http://www.paddlepaddle.org/) as the pretrained model and then we literaly `finetune` the model. 
 We perfome the parameter conversion according to the method described [here](https://github.com/PaddlePaddle/models/tree/develop/image_classification/caffe2paddle).
-
+In `train.py`, we set the parameters converted from caffe into the paddle model as the initial value as followed:
 ```python
 #Load pre-trained params
 if args.model is not None:
@@ -148,7 +148,7 @@ if args.model is not None:
 
 #### train
 `python train.py --model your/path/to/parametersFromCaffe --trainer num` <br>
---model: 从caffemodel中提取的参数.<br>
+--model: path/to/parameters converted from caffe.<br>
 
 Infer
 -----------
