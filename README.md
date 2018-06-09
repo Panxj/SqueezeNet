@@ -114,6 +114,11 @@ ILSVRC2012_val_00000006.JPEG 57
 ...
 ```
 **synset_words.txt**: the semantic label of each class.
+```
+n01491361 tiger shark, Galeocerdo cuvieri
+n01494475 hammerhead, hammerhead shark
+n01496331 electric ray, crampfish, numbfish, torpedo
+```
 
 Training
 -----------
