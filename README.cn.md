@@ -48,55 +48,31 @@ Data Preparation
 * 验证集: 50,000张图片 + 标签
 * 测试集: 100,000张图片
 
-训练时， 所有图片按照短边resize到256，之后随机从左上，右上，中间，左下，右下 crop 出 `227 * 227` 大小图像输入网络。验证与测试时，同样按短边resize到 256，之后从中间 crop `227 * 227` 图像输入网络。所有图像均减去均值`[104,117,123]`，与imagenet 官网提供的均值文件稍有不同。
+训练时， 所有图片resize到 `256 X 256`，之后随机crop 出 `227 X 227` 大小图像输入网络。验证与测试时，同样首先resize到 `256 X 256`，之后从中间 crop 出 `227 X 227` 图像输入网络。所有图像均减去均值`[104,117,123]`，与imagenet 官网提供的均值文件稍有不同。
 `reader.py`中相关函数如下，
 ```python
-def random_crop(orig_im,new_shape):
-        id = random.randint(0,5)
-        # left-top
-        if id == 0:
-            image = orig_im[:new_shape[0], :new_shape[1]]
-        # right-top
-        elif id == 1:
-            image = orig_im[:new_shape[0], orig_im.shape[1]-new_shape[1]:]
-        # left-bottom
-        elif id == 2:
-            image = orig_im[orig_im.shape[0]-new_shape[0]:,:new_shape[1]]
-        # right-bottom
-        elif id == 3:
-            image = orig_im[orig_im.shape[0]-new_shape[0]:, orig_im.shape[1]-new_shape[1]:]
-        # center
-        else:
-            off_w = (orig_im.shape[1] - new_shape[1]) / 2
-            off_h = (orig_im.shape[0] - new_shape[0]) / 2
-            image = orig_im[off_h:off_h + new_shape[0], off_w:off_w + new_shape[1]]
-        return image
-def center_crop(orig_im,new_shape=(227,227)):
-    off_w = (orig_im.shape[1] - new_shape[1]) / 2
-    off_h = (orig_im.shape[0] - new_shape[0]) / 2
-    image = orig_im[off_h:off_h + new_shape[0], off_w:off_w + new_shape[1]]
-    return image
-
-def load_img(img_path, resize = 256, crop=227, flip=False):
-    im = cv2.imread(img_path)
-    if flip:
-        im  = im[:,::-1,:]    #horizental-flip
-    h, w = im.shape[:2]
-    h_new, w_new = resize, resize
-    if h > w:
-        h_new = resize * h / w
+def process_image(sample, mode, color_jitter, rotate):
+    img_path = sample[0]
+    img = paddle2.image.load_image(img_path)
+    img = cv2.resize(img, (DATA_DIM, DATA_DIM), interpolation=cv2.INTER_CUBIC)
+    if mode == 'train':
+        if rotate: img = rotate_image(img)
+        img = paddle2.image.random_crop(img, DATA_DIM)
     else:
-        w_new = resize * w / h
-    im = cv2.resize(im,(h_new, w_new), interpolation=cv2.INTER_CUBIC)
-    #b, g, r = cv2.split(im)
-    #im = cv2.merge([b - mean_value[0], g - mean_value[1], r - mean_value[2]])
-    im = random_crop(im,(crop,crop))
-    im = np.array(im).astype(np.float32)
-    im = im.transpose((2, 0, 1))  # HWC => CHW
-    im = im - mean_value
-    im = im.flatten()
-    #im = im / 255.0
-    return im
+        img = paddle2.image.center_crop(img, DATA_DIM)
+    if mode == 'train':
+        if color_jitter:
+            img = distort_color(img)
+        if random.randint(0, 1) == 1:
+            img = paddle2.image.left_right_flip(img)
+    img = paddle2.image.to_chw(img)
+    img = img.astype('float32')
+    img -= img_mean
+
+    if mode == 'train' or mode == 'test':
+        return img, sample[1]
+    elif mode == 'infer':
+        return [img]
 ```
 
 train.txt 中数据如下：
@@ -117,9 +93,17 @@ ILSVRC2012_val_00000004.JPEG 809
 ILSVRC2012_val_00000005.JPEG 516
 ILSVRC2012_val_00000006.JPEG 57
 ```
+synset_wrods.txy 数据如下：
+```
+n01491361 tiger shark, Galeocerdo cuvieri
+n01494475 hammerhead, hammerhead shark
+n01496331 electric ray, crampfish, numbfish, torpedo
+```
+
 Training
 -----------
-为加快模型的训练，首先提取[caffe](http://caffe.berkeleyvision.org/)下的SqueezeNet模型参数，之后赋值到[PaddlePaddle](http://www.paddlepaddle.org/)模型中作为预训练参数，之后`finetune`. 论文作者[github](https://github.com/DeepScale/SqueezeNet)开源了两个版本的SqueezeNet 模型。 其中 SqueezeNet_v1.0 与论文中结构相同，SqueezeNet_v1.1 对原有结构进行了些许改动，使得在保证accuracy 不下降的情况下，计算量降低了 2.4x 倍。 SqueezeNet_v1.1 相比于论文中结构改动如下：
+#### 1. Determine the architecture
+论文作者[github](https://github.com/DeepScale/SqueezeNet)开源了两个版本的SqueezeNet 模型。 其中 SqueezeNet_v1.0 与论文中结构相同，SqueezeNet_v1.1 对原有结构进行了些许改动，使得在保证accuracy 不下降的情况下，计算量降低了 2.4x 倍。 SqueezeNet_v1.1 相比于论文中结构改动如下：
 
 Tabel 2. changes in SqueezeNet_v1.1
  
@@ -132,7 +116,7 @@ Tabel 2. changes in SqueezeNet_v1.1
  
 此项目中，采用SqueezeNet_v1.1 结构。<br>
 
-#### caffe2paddle 参数转化
+<!--#### caffe2paddle 参数转化
 caffemodel中参数按照[PaddlePaddle](https://github.com/PaddlePaddle/models/tree/develop/image_classification/caffe2paddle)介绍的方法进行转化，并在训练开始前进行赋值，如下：
 ```python
 #Load pre-trained params
@@ -143,15 +127,61 @@ if args.model is not None:
             h,w = parameters.get_shape(layer_name)
             parameters.set(layer_name,load_parameter(layer_param_path,h,w))
 ```
+-->
+#### 2. train
+`python train.py | tee ouput/logs/log.log` 执行训练过程。
 
-#### train
-`python train.py --model your/path/to/parametersFromCaffe --trainer num` <br>
---model: 从caffemodel中提取的参数.<br>
 
-Infer
+```python
+train_parallel_do(args,
+                      learning_rate,
+                      batch_size,
+                      num_passes,
+                      init_model=None,
+                      pretrained_model=None,
+                      model_save_dir='models',
+                      parallel=True,
+                      use_nccl=True,
+                      lr_strategy=None)
+```
+
+Testing
 -----------
+Run `python eavl.py` 执行测试过程.
+```python
+add_arg('batch_size', int, 32, "Minibatch size.")
+add_arg('use_gpu', bool, True, "Whether to use GPU or not.")
+add_arg('test_list', str, '', "The testing data lists.")
+add_arg('model_dir', str, './models/final', "The model path.")
 
-Reference
+# Evaluation code
+eval(args):
+```
+
+ `args.test_list` 指定测试过程中的图片路径列表,  `args.model_path` 指定已训练好的模型路径。
+```
+测试结果如下.
+```
+
+Infering
+-----------
+Run `python infer.py` 利用训练好的模型进行推断.
+```python
+add_arg('batch_size', int, 1, "Minibatch size.")
+add_arg('use_gpu', bool,  True, "Whether to use GPU or not.")
+add_arg('test_list', str, '', "The testing data lists.")
+add_arg('synset_word_list', str, 'data/ILSVRC2012/synset_words.txt', "The label name of data")
+add_arg('model_dir', str, 'models/final', "The model path.")
+# infer code
+infer(args)
+```
+
+`args.test_list` 指定需要参与推断的图片路径列表文件, `args.model_path` 指定用到的训练好的模型.
+```
+infer example result.
+```
+
+References
 -----------
 [SqueezeNet: AlexNet-level accuracy with 50x fewer parameters and <0.5MB model size](https://arxiv.org/abs/1602.07360)
 
