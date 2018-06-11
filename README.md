@@ -184,11 +184,6 @@ add_arg('model_dir', str, './models/final', "The model path.")
 eval(args):
 ```
 
-Here `test_list` specifies image path list involved in evaluation process, `model_path` specifies directory to the trained parameters.
-```
-evaluation result.
-```
-
 Infering
 -----------
 Run `python infer.py` to perform the image classification using the trained model.
@@ -202,10 +197,6 @@ add_arg('model_dir', str, 'models/final', "The model path.")
 infer(args)
 ```
 
-Here `test_list` specifies image path list to be inferred, `model_path` specifies directory to the trained parameters.
-```
-infer example result.
-```
 
 References
 -----------
