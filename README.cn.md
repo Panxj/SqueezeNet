@@ -158,10 +158,7 @@ add_arg('model_dir', str, './models/final', "The model path.")
 eval(args):
 ```
 
- `args.test_list` 指定测试过程中的图片路径列表,  `args.model_path` 指定已训练好的模型路径。
-```
-测试结果如下.
-```
+
 
 Infering
 -----------
@@ -174,11 +171,6 @@ add_arg('synset_word_list', str, 'data/ILSVRC2012/synset_words.txt', "The label 
 add_arg('model_dir', str, 'models/final', "The model path.")
 # infer code
 infer(args)
-```
-
-`args.test_list` 指定需要参与推断的图片路径列表文件, `args.model_path` 指定用到的训练好的模型.
-```
-infer example result.
 ```
 
 References
